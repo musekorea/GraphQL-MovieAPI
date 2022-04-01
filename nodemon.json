@@ -1,0 +1,1 @@
+{ "exec": "babel-node ./index.js", "watch": ["./index.js"] }
