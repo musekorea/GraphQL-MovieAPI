@@ -1,3 +1,9 @@
-type Query {
+type Family {
+	id: Int!
 	name: String!
+	age: Int!
+}
+
+type Query {
+	family: [Family]
 }
