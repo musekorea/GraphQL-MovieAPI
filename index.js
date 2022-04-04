@@ -1,7 +1,7 @@
 import { createServer } from "@graphql-yoga/node";
 
 const familyData = [
-	{ id: 1, name: "moya", age: 4 },
+	{ id: 1, name: null, age: 4 },
 	{ id: 2, name: "baozi", age: 5 },
 	{ id: 3, name: "nicai", age: 8 },
 ];
@@ -14,7 +14,7 @@ const typeDefs = `
 	}
 	type Query {
 		family : [Family]
-		member(id:Int) : Family
+		member(id:Int!) : Family!
 
 	}	
 `;
@@ -25,9 +25,10 @@ const server = createServer({
 		resolvers: {
 			Query: {
 				family: () => familyData,
-				member: (_, args) => {
+				member: (_, { id }) => {
+					console.log(id);
 					const filtered = familyData.filter((member) => {
-						return args.id === member.id;
+						return id === member.id;
 					});
 					return filtered[0];
 				},
