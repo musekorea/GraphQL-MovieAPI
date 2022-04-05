@@ -1,22 +1,43 @@
 import { createServer } from "@graphql-yoga/node";
+//import movies from "./db";
 
-const familyData = [
-	{ id: 1, name: null, age: 4 },
-	{ id: 2, name: "baozi", age: 5 },
-	{ id: 3, name: "nicai", age: 8 },
+let movies = [
+	{
+		id: 0,
+		name: "Star Wars - The new one",
+		score: 1,
+	},
+	{
+		id: 1,
+		name: "Avengers - The new one",
+		score: 8,
+	},
+	{
+		id: 2,
+		name: "The Godfather I",
+		score: 99,
+	},
+	{
+		id: 3,
+		name: "Logan",
+		score: 2,
+	},
 ];
 
 const typeDefs = `
-	type Family {
+	type Movie {
 		id : Int!
 		name : String!
-		age : Int!
+		score : Int!
 	}
 	type Query {
-		family : [Family]
-		member(id:Int!) : Family!
-
+		movies : [Movie]!
+		movie(id:Int!) : Movie!
 	}	
+	type Mutation {
+		addMovie(name:String!, score:Int!): Movie!
+		delMovie(id:Int!):Boolean!
+	}
 `;
 
 const server = createServer({
@@ -24,13 +45,31 @@ const server = createServer({
 		typeDefs: typeDefs,
 		resolvers: {
 			Query: {
-				family: () => familyData,
-				member: (_, { id }) => {
-					console.log(id);
-					const filtered = familyData.filter((member) => {
-						return id === member.id;
+				movies: () => movies,
+				movie: (_, { id }) => {
+					const filtered = movies.filter((movie) => {
+						return id === movie.id;
 					});
 					return filtered[0];
+				},
+			},
+			Mutation: {
+				addMovie: (_, { name, score }) => {
+					const id = movies.length;
+					const newMovie = { id, name, score };
+					movies.push(newMovie);
+					return newMovie;
+				},
+				delMovie: (_, { id }) => {
+					const deleteMovie = movies.filter((movie) => id !== movie.id);
+					if (deleteMovie.length === movies.length) {
+						console.log("안지웠음");
+						return false;
+					} else {
+						console.log("지웠음");
+						movies = deleteMovie;
+						return true;
+					}
 				},
 			},
 		},
