@@ -1,76 +1,39 @@
 import { createServer } from "@graphql-yoga/node";
-//import movies from "./db";
+import fetch from "node-fetch";
 
-let movies = [
-	{
-		id: 0,
-		name: "Star Wars - The new one",
-		score: 1,
-	},
-	{
-		id: 1,
-		name: "Avengers - The new one",
-		score: 8,
-	},
-	{
-		id: 2,
-		name: "The Godfather I",
-		score: 99,
-	},
-	{
-		id: 3,
-		name: "Logan",
-		score: 2,
-	},
-];
+const API_URL = `https://yts.torrentbay.to/api/v2/list_movies.json`;
+
+const getMovieData = async (limit, rating) => {
+	console.log(limit, rating);
+	const url = `${API_URL}?${limit ? "limit=" + limit : ""}&${
+		rating ? "minimum_rating=" + rating : ""
+	}`;
+	console.log(url);
+	const fetchDatas = await fetch(url);
+	const MovieDatas = await fetchDatas.json();
+	return MovieDatas.data.movies;
+};
 
 const typeDefs = `
-	type Movie {
+	type Movie { 
 		id : Int!
-		name : String!
-		score : Int!
+		title : String!
+		rating : Float!
+		summary : String!
+		language : String!
+		medium_cover_image : String
 	}
 	type Query {
-		movies : [Movie]!
-		movie(id:Int!) : Movie!
-	}	
-	type Mutation {
-		addMovie(name:String!, score:Int!): Movie!
-		delMovie(id:Int!):Boolean!
+		movies(limit:Int, rating:Float) : [Movie]!
 	}
-`;
+	`;
 
 const server = createServer({
 	schema: {
 		typeDefs: typeDefs,
 		resolvers: {
 			Query: {
-				movies: () => movies,
-				movie: (_, { id }) => {
-					const filtered = movies.filter((movie) => {
-						return id === movie.id;
-					});
-					return filtered[0];
-				},
-			},
-			Mutation: {
-				addMovie: (_, { name, score }) => {
-					const id = movies.length;
-					const newMovie = { id, name, score };
-					movies.push(newMovie);
-					return newMovie;
-				},
-				delMovie: (_, { id }) => {
-					const deleteMovie = movies.filter((movie) => id !== movie.id);
-					if (deleteMovie.length === movies.length) {
-						console.log("안지웠음");
-						return false;
-					} else {
-						console.log("지웠음");
-						movies = deleteMovie;
-						return true;
-					}
-				},
+				movies: (_, { limit, rating }) => getMovieData(limit, rating),
 			},
 		},
 	},
