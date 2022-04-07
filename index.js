@@ -8,10 +8,23 @@ const getMovieData = async (limit, rating) => {
 	const url = `${API_URL}?${limit ? "limit=" + limit : ""}&${
 		rating ? "minimum_rating=" + rating : ""
 	}`;
-	console.log(url);
 	const fetchDatas = await fetch(url);
 	const MovieDatas = await fetchDatas.json();
 	return MovieDatas.data.movies;
+};
+
+const getMovieDetail = async (id) => {
+	const url = `https://yts.torrentbay.to/api/v2/movie_details.json?movie_id=${id}`;
+	const fetchDetail = await fetch(url);
+	const detailData = await fetchDetail.json();
+	return detailData.data.movie;
+};
+
+const getMovieSuggestion = async (id) => {
+	const url = `https://yts.torrentbay.to/api/v2/movie_suggestions.json?movie_id=${id}`;
+	const fetchSuggestion = await fetch(url);
+	const suggestionData = await fetchSuggestion.json();
+	return suggestionData.data.movies;
 };
 
 const typeDefs = `
@@ -25,6 +38,8 @@ const typeDefs = `
 	}
 	type Query {
 		movies(limit:Int, rating:Float) : [Movie]!
+		movie(id:Int!) : Movie!
+		suggestion(id:Int!):[Movie]
 	}
 	`;
 
@@ -34,6 +49,8 @@ const server = createServer({
 		resolvers: {
 			Query: {
 				movies: (_, { limit, rating }) => getMovieData(limit, rating),
+				movie: (_, { id }) => getMovieDetail(id),
+				suggestion: (_, { id }) => getMovieSuggestion(id),
 			},
 		},
 	},
