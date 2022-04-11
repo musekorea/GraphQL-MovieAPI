@@ -4,7 +4,6 @@ import fetch from "node-fetch";
 const API_URL = `https://yts.torrentbay.to/api/v2/list_movies.json`;
 
 const getMovieData = async (limit, rating) => {
-	console.log(limit, rating);
 	const url = `${API_URL}?${limit ? "limit=" + limit : ""}&${
 		rating ? "minimum_rating=" + rating : ""
 	}`;
@@ -17,6 +16,7 @@ const getMovieDetail = async (id) => {
 	const url = `https://yts.torrentbay.to/api/v2/movie_details.json?movie_id=${id}`;
 	const fetchDetail = await fetch(url);
 	const detailData = await fetchDetail.json();
+	console.log(detailData);
 	return detailData.data.movie;
 };
 
@@ -32,7 +32,7 @@ const typeDefs = `
 		id : Int!
 		title : String!
 		rating : Float!
-		summary : String!
+		description_full : String!
 		language : String!
 		medium_cover_image : String
 	}
